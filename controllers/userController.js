@@ -28,7 +28,7 @@ export const createUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { privyId } = req.body;
-    const user = await User.findOne({ privyId }); 
+    const user = await User.findOne({ privyId });
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
