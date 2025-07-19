@@ -22,11 +22,16 @@ export const createInstant = async (req, res) => {
 }
 
 export const getInstant = async (req, res) => {
-    const { senderWalletAddress } = req.params;
+    const { walletAddress, type } = req.params;
+    console.log(walletAddress, type);
+    if (!walletAddress || !type) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
     try {
         const mergedArray = await Instant.aggregate([
             {
-                $match: { senderWalletAddress }
+                $match: { [type === "sender" ? "senderWalletAddress" : "receiverWalletAddress"]: walletAddress }
             },
             {
                 $lookup: {
@@ -49,3 +54,4 @@ export const getInstant = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
