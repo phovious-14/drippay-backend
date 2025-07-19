@@ -23,6 +23,7 @@ export const createInstant = async (req, res) => {
 
 export const getInstant = async (req, res) => {
     const { senderWalletAddress } = req.params;
+    console.log(senderWalletAddress);
     try {
         const mergedArray = await Instant.aggregate([
             {
