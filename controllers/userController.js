@@ -78,3 +78,40 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ error: "Failed to delete user" });
   }
 };
+
+export const saveRecepient = async (req, res) => {
+  try {
+    const { privyId } = req.params;
+    const { recipientName, recipientAddress } = req.body;
+
+    if (!recipientName || !recipientAddress) {
+      return res.status(400).json({ error: "Name and wallet address are required" });
+    }
+
+    const user = await User.findOneAndUpdate({ privyId }, {
+      $push: {
+        recipients: {
+          name: recipientName,
+          walletAddress: recipientAddress,
+        }
+      }
+    }, { new: true });
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error saving recepient:", error);
+    res.status(500).json({ error: "Failed to save recepient" });
+  }
+};
+
+export const getRecepients = async (req, res) => {
+  try {
+    const { privyId } = req.params;
+      const user = await User.findOne({ privyId }, { recipients: 1 });
+
+    res.status(200).json(user.recipients);
+  } catch (error) {
+    console.error("Error getting recepients:", error);
+    res.status(500).json({ error: "Failed to get recepients" });
+  }
+};

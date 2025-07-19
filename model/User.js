@@ -28,6 +28,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["influencer", "brand", "admin"],
   },
+  recipients: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      walletAddress: {
+        type: String,
+        required: true,
+      },
+    }
+  ]
 });
 
 const User = mongoose.model("User", userSchema);

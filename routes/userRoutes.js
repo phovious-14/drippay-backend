@@ -10,6 +10,12 @@ router.post("/create", UserController.createUser);
 // User authentication
 router.post("/login", UserController.loginUser);
 
+// Save recepient by privyId
+router.post("/save-recepient/:privyId", authMiddleware, UserController.saveRecepient);
+
+// Get all recepients by privyId
+router.get("/get-recepients/:privyId", authMiddleware, UserController.getRecepients);
+
 // Get user profile by privyId
 router.get("/privy/:privyId", authMiddleware, UserController.getUserByPrivyId);
 
