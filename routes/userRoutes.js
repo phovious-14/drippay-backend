@@ -20,9 +20,9 @@ router.get("/get-recepients/:privyId", authMiddleware, UserController.getRecepie
 router.get("/privy/:privyId", authMiddleware, UserController.getUserByPrivyId);
 
 // Update user profile
-router.put("/:userId", authMiddleware, UserController.updateUser);
+// router.put("/:userId", authMiddleware, UserController.updateUser);
 
-// Delete user account
-router.delete("/:userId", authMiddleware, UserController.deleteUser);
+// // Delete user account
+// router.delete("/:userId", authMiddleware, UserController.deleteUser);
 
 export default router;
