@@ -1,15 +1,16 @@
 import Stream from "../model/Stream.js";
 import User from "../model/User.js";
+import Invoice from "../model/Invoice.js";
 
 export const createStream = async (req, res) => {
     try {
 
         console.log(req.body);
 
-        const { txHash, streamName, senderWalletAddress, senderName, receiverWalletAddress, receiverName, streamStartTime, streamEndTime, amount, documentURL, flowRate } = req.body;
+        const { streamStartTxHash, payrollName, senderWalletAddress, receiverWalletAddress, receiverName, streamStartTime, amount, flowRate, flowRateUnit } = req.body;
 
-        if (!streamStartTime || !streamEndTime) {
-            return res.status(400).json({ error: "Stream start time and end time are required" });
+        if (!streamStartTime) {
+            return res.status(400).json({ error: "Stream start time are required" });
         }
 
         //get privyId from senderWalletAddress
@@ -22,9 +23,7 @@ export const createStream = async (req, res) => {
             return res.status(400).json({ error: "Sender is not authorized" });
         }
 
-        // Calculate duration in seconds between start and end time
-
-        const stream = new Stream({ streamStartTxHash: txHash, streamName, senderWalletAddress, senderName, receiverWalletAddress, receiverName, streamStatus: "active", streamStartTime, streamEndTime, amount, flowRate, documentURL });
+        const stream = new Stream({ streamStartTxHash, payrollName, senderWalletAddress, receiverWalletAddress, receiverName, streamStatus: "active", streamStartTime, amount, flowRate, flowRateUnit });
         await stream.save();
         res.status(201).json(stream);
     } catch (error) {
@@ -33,23 +32,58 @@ export const createStream = async (req, res) => {
     }
 };
 
-export const updateStreamStatus = async (req, res) => {
+export const getStream = async (req, res) => {
     try {
-        const { status, id } = req.body;
+        const { walletAddress, type } = req.params;
+        console.log("stream", walletAddress, type);
+        if (!walletAddress || !type) {
+            return res.status(400).json({ error: "All fields are required" });
+        }
+
+        const mergedArray = await Stream.aggregate([
+            {
+                $match: { [type === "sender" ? "senderWalletAddress" : "receiverWalletAddress"]: walletAddress }
+            },
+            {
+                $lookup: {
+                    from: "invoices", // collection name (lowercase)
+                    localField: "invoiceId",
+                    foreignField: "_id",
+                    as: "invoice"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$invoice",
+                    preserveNullAndEmptyArrays: true
+                }
+            }
+        ]);
+
+        res.status(200).json(mergedArray);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+export const stopStreamStatus = async (req, res) => {
+    try {
+        const { id } = req.body;
 
         const stream = await Stream.findOne({ _id: id });
         if (!stream) {
             return res.status(400).json({ error: "Stream not found" });
         }
 
-        if (status === "cancelled") {
-            await Stream.deleteOne({ _id: id });
-            return res.status(200).json({ message: "Stream record deleted successfully!" });
+        const { streamEndTime, streamStoppedTxHash, documentUrl, invoiceNumber } = req.body;
+
+        const invoice = new Invoice({ invoiceNumber, invoiceType: "stream", invoiceStatus: "paid", documentUrl });
+        const invoiceData = await invoice.save();
+        if (!invoiceData) {
+            return res.status(400).json({ error: "Invoice not found" });
         }
 
-        const { txHash } = req.body;
-
-        const updatedStream = await Stream.findOneAndUpdate({ _id: id }, { $set: { streamStatus: status, streamStartTxHash: txHash } });
+        const updatedStream = await Stream.findOneAndUpdate({ _id: id }, { $set: { streamStatus: "completed", streamStoppedTxHash, streamEndTime, documentUrl, invoiceId: invoice._id } });
 
         if (!updatedStream) {
             return res.status(400).json({ error: "Stream not found" });

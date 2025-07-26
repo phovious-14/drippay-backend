@@ -1,10 +1,11 @@
 import express from "express";
-import { createStream, updateStreamStatus } from "../controllers/streamController.js";
+import { createStream, getStream, stopStreamStatus } from "../controllers/streamController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.post("/create", authMiddleware, createStream);
-router.post("/update-status", authMiddleware, updateStreamStatus);
+router.get("/get/:walletAddress/:type", authMiddleware, getStream); 
+router.post("/stop-stream", authMiddleware, stopStreamStatus);
 
 export default router;
