@@ -23,7 +23,6 @@ export const createInstant = async (req, res) => {
 
 export const getInstant = async (req, res) => {
     const { walletAddress, type } = req.params;
-    console.log(walletAddress, type);
     if (!walletAddress || !type) {
         return res.status(400).json({ error: "All fields are required" });
     }
