@@ -5,8 +5,6 @@ import Invoice from "../model/Invoice.js";
 export const createStream = async (req, res) => {
     try {
 
-        console.log(req.body);
-
         const { streamStartTxHash, payrollName, senderWalletAddress, receiverWalletAddress, receiverName, streamStartTime, amount, flowRate, flowRateUnit } = req.body;
 
         if (!streamStartTime) {
@@ -35,7 +33,6 @@ export const createStream = async (req, res) => {
 export const getStream = async (req, res) => {
     try {
         const { walletAddress, type } = req.params;
-        console.log("stream", walletAddress, type);
         if (!walletAddress || !type) {
             return res.status(400).json({ error: "All fields are required" });
         }
