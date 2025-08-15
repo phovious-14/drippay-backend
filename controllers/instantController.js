@@ -3,7 +3,7 @@ import Invoice from "../model/Invoice.js";
 
 export const createInstant = async (req, res) => {
     try {
-        const { invoiceNumber, txHash, payrollName, senderWalletAddress, receiverWalletAddress, receiverName, amount, currency, chainId, documentUrl } = req.body;
+        const { tokenSymbol,invoiceNumber, txHash, payrollName, senderWalletAddress, receiverWalletAddress, receiverName, amount, currency, chainId, documentUrl } = req.body;
 
         if (!invoiceNumber || !txHash || !payrollName || !senderWalletAddress || !receiverWalletAddress || !receiverName || !amount || !currency || !chainId || !documentUrl) {
             return res.status(400).json({ error: "All fields are required" });
@@ -12,7 +12,7 @@ export const createInstant = async (req, res) => {
         const invoice = await Invoice.create({ invoiceNumber, documentUrl, invoiceType: "instant", invoiceStatus: "paid" });
         const invoiceData = await invoice.save();
 
-        const newInstant = await Instant.create({ txHash, payrollName, senderWalletAddress, receiverWalletAddress, receiverName, amount, currency, chainId, invoiceId: invoiceData._id });
+        const newInstant = await Instant.create({ tokenSymbol, txHash, payrollName, senderWalletAddress, receiverWalletAddress, receiverName, amount, currency, chainId, invoiceId: invoiceData._id });
         await newInstant.save()
 
         res.status(201).json(newInstant);

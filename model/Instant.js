@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const instantSchema = new mongoose.Schema({
+    tokenSymbol: { type: String, required: true },
     payrollName: { type: String, required: true },
     senderWalletAddress: { type: String, required: true },
     receiverWalletAddress: { type: String, required: true },

@@ -5,7 +5,7 @@ import Invoice from "../model/Invoice.js";
 export const createStream = async (req, res) => {
     try {
 
-        const { streamStartTxHash, payrollName, senderWalletAddress, receiverWalletAddress, receiverName, streamStartTime, amount, flowRate, flowRateUnit } = req.body;
+        const { tokenSymbol, streamStartTxHash, payrollName, senderWalletAddress, receiverWalletAddress, receiverName, streamStartTime, amount, flowRate, flowRateUnit } = req.body;
 
         if (!streamStartTime) {
             return res.status(400).json({ error: "Stream start time are required" });
@@ -21,7 +21,7 @@ export const createStream = async (req, res) => {
             return res.status(400).json({ error: "Sender is not authorized" });
         }
 
-        const stream = new Stream({ streamStartTxHash, payrollName, senderWalletAddress, receiverWalletAddress, receiverName, streamStatus: "active", streamStartTime, amount, flowRate, flowRateUnit });
+        const stream = new Stream({ tokenSymbol, streamStartTxHash, payrollName, senderWalletAddress, receiverWalletAddress, receiverName, streamStatus: "active", streamStartTime, amount, flowRate, flowRateUnit });
         await stream.save();
         res.status(201).json(stream);
     } catch (error) {
